@@ -127,8 +127,35 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
 -(void)goNNN
 {
     
-    network->trainWithMultiDataCount(1000, 0.001);
+//    network->trainWithMultiDataCount(3000, 0.001);
     
+    network->trainloopCount = 3000;
+    network->sheldhold = 0.001;
+    
+    
+    int loop = 0;
+    double delta =  1;
+    while (loop < network->trainloopCount && delta > network->sheldhold)
+    {
+        
+        delta = network->trainWithMultiData();
+        
+        
+        
+        
+        network->updateMultiCaseDw();
+        network->clearMultiCaseDw();
+        
+        printf("%d delta:\t%.10f\n",loop,delta);
+        
+        [self dataRecived:delta];
+        
+        loop++;
+        
+    }
+    
+    
+    [self updateGraph:array];
     
 }
 -(void)dataRecived:(CGFloat)delta
