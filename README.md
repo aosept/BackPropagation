@@ -1,2 +1,2 @@
 # BackPropagation
-Back Propagation Example on iOS in c++
+Back Propagation Example for iOS in c++
