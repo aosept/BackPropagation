@@ -93,7 +93,7 @@ public:
             
             b = new double[countOfOut];
             for (int j = 0; j<countOfOut; j++) {
-                b[j] =  0.6;
+                b[j] =  1;
             }
             
             dETotal_dOut = new double[countOfOut];
@@ -248,7 +248,7 @@ public:
             }
         
         for (int i = 0; i<countOfOut; i++) {
-            b[i] = 0.6;
+            b[i] = 1;
         }
         
         for (int i = 0; i<countOfOut; i++) {

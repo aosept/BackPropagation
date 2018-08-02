@@ -11,7 +11,7 @@
 #import "MSDateUtils.h"
 #import "SVChartView.h"
 #import "SVNetWork.hpp"
-
+#import "NNManager.h"
 
 static void didRecieveData_t(const void*callback,const char *key, const char *value,double delta);
 static void didRecieveData(const void*callback,const char *key, const char *value,double delta)
@@ -26,17 +26,9 @@ static void didRecieveData(const void*callback,const char *key, const char *valu
 }
 static void didRecieveData_t(const void*callback,const char *key, const char *value,double delta)
 {
-    NSLog(@"--->%.9f",delta);
-    void *point = &delta;
-    if(point == NULL)
-    {
-        NSLog(@"Nan");
-    }
-    else
-    {
-        SVNNNViewController* vc = (__bridge SVNNNViewController*)callback;
-        [vc dataRecived:delta];
-    }
+    
+    SVNNNViewController* vc = (__bridge SVNNNViewController*)callback;
+    [vc dataRecived:delta];
 }
 @interface SVNNNViewController ()
 {
@@ -59,52 +51,79 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         
-        int countOfwconfig = 2;
-        int wconfig[2] = {5,2};
-        
-        int inputCount = 2;
-        int outputCount = 1;
-        int trainingCount = 4;
-        
-        
-        self->network = new SVNetWork(countOfwconfig,inputCount,outputCount,trainingCount,wconfig);
-        
-        
-        double xx[4][2] = { {1,0,},
-            {0,1},
-            {1,1},
-            {0,0},
-        };
-        double tt[4][1] = { {1,},
-            {1,},
-            {0,},
-            {0,},
-        };
-        self->network->dataListSet(*xx,*tt);
-    
-        self->network->didRecieveDataCallback = didRecieveData;
-        self->network->callbackNSObject = (__bridge void*)self;
+        [self autoencoderInit];
     });
     
     
     
     NSLog(@"");
 }
--(void)viewDidAppear:(BOOL)animated
+-(void)autoencoderInit
 {
-    [super viewDidAppear:animated];
-//    [self.dataChartView refreshUIAsSheet];
+    int countOfwconfig = 2;
+    int wconfig[2] = {2,4};
     
-   
-    array = @[];
+    int inputCount = 4;
+    int outputCount = 4;
+    int trainingCount = 6;
+    
+    double xx[6][4] = { {1,1,0,0,},
+        {1,0,0,1,},
+        {1,0,1,0,},
+        {0,1,0,1,},
+        {0,0,1,1,},
+        {0,1,1,0,},
+    };
+    double tt[6][4] = { {1,1,0,0,},
+        {1,0,0,1,},
+        {1,0,1,0,},
+        {0,1,0,1,},
+        {0,0,1,1,},
+        {0,1,1,0,},
+    };
+    
+    self->network = new SVNetWork(countOfwconfig,inputCount,outputCount,trainingCount,wconfig);
     
     
+    
+    self->network->dataListSet(*xx,*tt);
+    
+    self->network->didRecieveDataCallback = didRecieveData;
+    self->network->callbackNSObject = (__bridge void*)self;
 }
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+-(void)n66init
+{
+    int countOfwconfig = 3;
+    int wconfig[3] = {5,5,1};
+    
+    int inputCount = 4;
+    int outputCount = 1;
+    int trainingCount = 6;
+    
+    double xx[6][4] = { {1,1,0,0,},
+        {1,0,0,1,},
+        {1,0,1,0,},
+        {0,1,0,1,},
+        {0,0,1,1,},
+        {0,1,1,0,},
+    };
+    double tt[6][1] = { {0.165,},
+        {0.33,},
+        {0.495,},
+        {0.66,},
+        {0.825,},
+        {1,},
+    };
+    
+    self->network = new SVNetWork(countOfwconfig,inputCount,outputCount,trainingCount,wconfig);
+    
+    
+    
+    self->network->dataListSet(*xx,*tt);
+    
+    self->network->didRecieveDataCallback = didRecieveData;
+    self->network->callbackNSObject = (__bridge void*)self;
 }
-
 
 -(void)dealloc
 {
@@ -129,7 +148,7 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
     
 //    network->trainWithMultiDataCount(3000, 0.001);
     
-    network->trainloopCount = 3000;
+    network->trainloopCount = 100000;
     network->sheldhold = 0.001;
     
     
@@ -154,20 +173,26 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
         
     }
     
+    network->showResult();
     
     [self updateGraph:array];
     
 }
 -(void)dataRecived:(CGFloat)delta
 {
-    static int count = 0;
-    
-    array = [array arrayByAddingObject:[NSNumber numberWithDouble:delta]];
-    if(count%100 == 0)
+    static int dc = 0;
+    if(delta < 5000 && delta > 0)
     {
-    
-        [self updateGraph:array];
+        if(dc%100 == 0)
+        {
+            NSNumber* number = [NSNumber numberWithDouble:delta];
+            if ([number isKindOfClass:[NSNumber class]]) {
+                array = [array arrayByAddingObject:number];
+                
+            }
+        }
     }
+    dc++;
 }
 -(void)updateGraph:(NSArray*)array
 {
