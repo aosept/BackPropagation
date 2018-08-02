@@ -31,8 +31,8 @@ public:
     double* trainingdata;
     double* targetdata;
     
-    double* trainingdataList;
-    double* targetdataList;
+    double** trainingdataList;
+    double** targetdataList;
     double step;
     bool isDebug;
     
@@ -94,8 +94,22 @@ public:
     void dataListSet(double *_trainingData,double *_targetData)
     {
         
-        trainingdataList = _trainingData;
-        targetdataList = _targetData;
+        trainingdataList = new double*[countOfcase];
+        for(int i = 0;i < countOfcase; i++)
+        {
+            trainingdataList[i] = new double[inputNumber];
+            for(int j=0; j< inputNumber;j++)
+                trainingdataList[i][j] = _trainingData[inputNumber*i+j];
+        }
+       
+        
+        targetdataList = new double*[countOfcase];
+        for(int i = 0;i < countOfcase; i++)
+        {
+            targetdataList[i] = new double[outNumber];
+            for(int j=0; j< outNumber;j++)
+                targetdataList[i][j] = _targetData[outNumber*i+j];
+        }
         
     }
     void dataset(double *_trainingData,double*_targetData)
@@ -148,6 +162,44 @@ public:
         
         
     }
+    void showResult()
+    {
+        for(int c = 0; c < countOfcase; c++)
+        {
+            double *input = new double[inputNumber];
+            
+            printf("in:\n");
+          
+            for (int i  = 0; i<inputNumber; i++) {
+                input[i] = trainingdataList[c][i];
+            }
+            
+            logArray(input, inputNumber);
+            
+            double *target = new double[outNumber];
+            for (int i  = 0; i<outNumber; i++) {
+                input[i] = targetdataList[c][i];
+            }
+            
+            dataset(input, target);
+            run();
+            
+            
+            
+                
+                SVNNLayer* lastlayer =  layers[countOfLayer-1];
+            
+            
+                printf("out:\n");
+                logArray(lastlayer->out, lastlayer->countOfOut);
+                
+            
+            printf("\n");
+            
+            delete [] input;
+            delete [] target;
+        }
+    }
     double trainWithMultiData()
     {
         double subDelta = 0;
@@ -156,13 +208,15 @@ public:
             double *input = new double[inputNumber];
             
             
+            
             for (int i  = 0; i<inputNumber; i++) {
-                input[i] = trainingdataList[c*inputNumber +i];
+                input[i] = trainingdataList[c][i];
             }
             
+//            logArray(input, inputNumber);
             double *target = new double[outNumber];
             for (int i  = 0; i<outNumber; i++) {
-                input[i] = targetdataList[c*outNumber +i];
+                input[i] = targetdataList[c][i];
             }
             
             dataset(input, target);
@@ -170,6 +224,7 @@ public:
             subDelta += training();
             
             delete [] input;
+            delete [] target;
         }
         
         return subDelta;
@@ -197,7 +252,7 @@ public:
             printf("%d delta:\t%.10f\n",loop,delta);
             
             if (didRecieveDataCallback != NULL) {
-                didRecieveDataCallback(callbackNSObject,"resultOf","delta",delta);
+//                didRecieveDataCallback(callbackNSObject,"resultOf","delta",delta);
             }
 
             
