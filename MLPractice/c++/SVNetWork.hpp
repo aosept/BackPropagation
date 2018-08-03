@@ -44,7 +44,7 @@ public:
     void *callbackNSObject;
     SVNetWork()
     {
-        step = 0.5;
+        
         isDebug = false;
     };
     
@@ -64,11 +64,26 @@ public:
                 input_size = hidden_layer_sizes[i-1];
             }
             
+
             layers[i] = new SVNNLayer(input_size,hidden_layer_sizes[i]);
             layers[i]->index = i;
+            
+            if(i < countOfLayer-1)
+            {
+                layers[i]->style = ActivationStyleRelu;
+                cout << "ActivationStyleRelu" << i<< endl;
+            }
+
+            if(i == countOfLayer-1)
+            {
+                layers[i]->style = ActivationStyleSigmoid;
+                cout << "ActivationStyleSigmoid" << i<< endl;
+            }
+            
+//            layers[i]->style = ActivationStyleSigmoid;
             printf(" line: %d ok\n",__LINE__);
         }
-        step = 0.5;
+        
     };
     void logArray(double* list,int count)
     {
@@ -192,13 +207,19 @@ public:
             
                 printf("out:\n");
                 logArray(lastlayer->out, lastlayer->countOfOut);
-                
+            
+            
             
             printf("\n");
             
             delete [] input;
             delete [] target;
         }
+        for (int i = 0; i< countOfLayer ; i++) {
+            SVNNLayer* layer =  layers[i];
+            layer->logW();
+        }
+        
     }
     double trainWithMultiData()
     {
@@ -229,12 +250,12 @@ public:
         
         return subDelta;
     }
-    void trainWithMultiDataCount(int count,double sheldholdValue)
+    void trainWithMultiDataCount(int count,double sheldholdValue,double hrate)
     {
     
         trainloopCount = count;
         sheldhold = sheldholdValue;
-        
+        step = hrate;
         
         int loop = 0;
         double delta =  1;
@@ -242,7 +263,11 @@ public:
         {
             if(loop > 100000)
             {
-                step = step*1.00001;
+                 step = step*1.00001;
+            }
+            else
+            {
+                step = hrate;
             }
             delta = trainWithMultiData();
             

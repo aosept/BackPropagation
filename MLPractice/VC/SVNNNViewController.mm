@@ -95,25 +95,18 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
 -(void)n66init
 {
     int countOfwconfig = 3;
-    int wconfig[3] = {5,5,1};
+    int wconfig[3] = {18,2,1};
     
     int inputCount = 4;
     int outputCount = 1;
     int trainingCount = 6;
     
-    double xx[6][4] = { {1,1,0,0,},
-        {1,0,0,1,},
-        {1,0,1,0,},
-        {0,1,0,1,},
-        {0,0,1,1,},
-        {0,1,1,0,},
+    double xx[1][4] = {
+        {1,1,0,0,},
+
     };
-    double tt[6][1] = { {0.165,},
-        {0.33,},
-        {0.495,},
-        {0.66,},
-        {0.825,},
-        {1,},
+    double tt[1][1] = { {0.165,},
+
     };
     
     self->network = new SVNetWork(countOfwconfig,inputCount,outputCount,trainingCount,wconfig);
@@ -147,7 +140,7 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
 -(void)goNNN
 {
     
-    network->trainWithMultiDataCount(1000000000, 0.001);
+    network->trainWithMultiDataCount(1000000000, 0.001,0.5);
     network->showResult();
     
     displayStep = 1;

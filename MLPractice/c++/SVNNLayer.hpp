@@ -14,10 +14,10 @@
 #include <math.h>
 #include <stdlib.h>
 using namespace std;
-enum SVlearnStyle
+enum ActivationStyle
 {
-    LearnBysigmoid = 0,
-    LearnByRelu,
+    ActivationStyleSigmoid = 0,
+    ActivationStyleRelu,
     
 };
 
@@ -36,7 +36,7 @@ public:
     double *out;//[countOfcase][cH1];
     double *input;
     double *delta;
-    SVlearnStyle style;
+    ActivationStyle style;
     //for training
     
     double *dETotal_dOut;//[layer->countOfOut];
@@ -52,7 +52,7 @@ public:
     {
         countOfIn = _countOfIn;
         countOfOut = _countOfOut;
-        style = LearnBysigmoid;
+        style = ActivationStyleSigmoid;
         try {
             net = new double[countOfOut];
             for (int j = 0; j<countOfOut; j++) {
@@ -201,14 +201,14 @@ public:
             }
             else
             {
-                dhout_dnet[i] = 0.3;
+                dhout_dnet[i] = 0;
             }
             
         }
     }
     void doutdnet()
     {
-        if(style == LearnByRelu)
+        if(style == ActivationStyleRelu)
         {
             doutdnetRelu();
         }
@@ -259,7 +259,7 @@ public:
         }
         
         for(int j = 0; j < countOfOut;j++){
-            if(style == LearnByRelu)
+            if(style == ActivationStyleRelu)
             {
                 out[j] = relu(net[j]);
             }
@@ -270,8 +270,17 @@ public:
         }
     }
     double relu(double x){
-       double r =  x>0.0?x:0.3*x;
-        return r;
+      
+        if(x > 0)
+        {
+            return x;
+        }
+        else
+            
+        {
+            return 0;
+        }
+        
     }
     double sigmoid(double x) {
         return 1.0 / (1.0 + exp(-x));
