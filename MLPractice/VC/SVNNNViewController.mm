@@ -35,6 +35,7 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
 //    __block nnbp* innbp;
     SVNetWork* network;
     NSArray* array;
+    __block int displayStep;
 }
 
 @end
@@ -61,25 +62,25 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
 -(void)autoencoderInit
 {
     int countOfwconfig = 2;
-    int wconfig[2] = {2,4};
+    int wconfig[2] = {5,2};
     
-    int inputCount = 4;
-    int outputCount = 4;
-    int trainingCount = 6;
+    int inputCount = 2;
+    int outputCount = 2;
+    int trainingCount = 4;
     
-    double xx[6][4] = { {1,1,0,0,},
-        {1,0,0,1,},
-        {1,0,1,0,},
-        {0,1,0,1,},
-        {0,0,1,1,},
-        {0,1,1,0,},
+    double xx[4][2] = {
+        {1,1,},
+        {1,0,},
+        {0,1,},
+        {0,0,},
+        
     };
-    double tt[6][4] = { {1,1,0,0,},
-        {1,0,0,1,},
-        {1,0,1,0,},
-        {0,1,0,1,},
-        {0,0,1,1,},
-        {0,1,1,0,},
+    double tt[4][2] = {
+        {1,1,},
+        {1,0,},
+        {0,1,},
+        {0,0,},
+        
     };
     
     self->network = new SVNetWork(countOfwconfig,inputCount,outputCount,trainingCount,wconfig);
@@ -146,65 +147,42 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
 -(void)goNNN
 {
     
-//    network->trainWithMultiDataCount(3000, 0.001);
-    
-    network->trainloopCount = 100000;
-    network->sheldhold = 0.001;
-    
-    
-    int loop = 0;
-    double delta =  1;
-    while (loop < network->trainloopCount && delta > network->sheldhold)
-    {
-        
-        delta = network->trainWithMultiData();
-        
-        
-        
-        
-        network->updateMultiCaseDw();
-        network->clearMultiCaseDw();
-        
-        printf("%d delta:\t%.10f\n",loop,delta);
-        
-        [self dataRecived:delta];
-        
-        loop++;
-        
-    }
-    
+    network->trainWithMultiDataCount(1000000000, 0.001);
     network->showResult();
     
-    [self updateGraph:array];
+    displayStep = 1;
     
 }
 -(void)dataRecived:(CGFloat)delta
 {
-    static int dc = 0;
+    
     if(delta < 5000 && delta > 0)
     {
-        if(dc%100 == 0)
-        {
+        @autoreleasepool {
             NSNumber* number = [NSNumber numberWithDouble:delta];
             if ([number isKindOfClass:[NSNumber class]]) {
                 array = [array arrayByAddingObject:number];
                 
+                [self updateGraph:array];
             }
         }
     }
-    dc++;
+
 }
 -(void)updateGraph:(NSArray*)array
 {
     __weak __typeof__(self) weakSelf = self;
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        __strong __typeof(weakSelf)strongSelf = weakSelf;
+        
         runOnMainQueueWithoutDeadlocking(^{
+            @autoreleasepool {
+                __strong __typeof(weakSelf)strongSelf = weakSelf;
+                strongSelf.dataChartView.dataDic[@"r"] = array;
+                //            strongSelf.dataChartView.dataDic[@"w2"] = w;
+                [strongSelf.dataChartView refreshUIAsSheet];
+            }
             
-            strongSelf.dataChartView.dataDic[@"r"] = array;
-            //            strongSelf.dataChartView.dataDic[@"w2"] = w;
-            [strongSelf.dataChartView refreshUIAsSheet];
         });
         
     });

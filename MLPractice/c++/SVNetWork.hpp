@@ -240,7 +240,10 @@ public:
         double delta =  1;
         while (loop < trainloopCount && delta > sheldhold)
         {
-            
+            if(loop > 100000)
+            {
+                step = step*1.00001;
+            }
             delta = trainWithMultiData();
             
             
@@ -248,13 +251,14 @@ public:
             
             updateMultiCaseDw();
             clearMultiCaseDw();
+            if(loop%10000 ==0)
+            {
+                printf("%d delta:\t%.10f\n",loop,delta);
             
-            printf("%d delta:\t%.10f\n",loop,delta);
-            
-            if (didRecieveDataCallback != NULL) {
-//                didRecieveDataCallback(callbackNSObject,"resultOf","delta",delta);
+                if (didRecieveDataCallback != NULL) {
+                    didRecieveDataCallback(callbackNSObject,"resultOf","delta",delta);
+                }
             }
-
             
             loop++;
             

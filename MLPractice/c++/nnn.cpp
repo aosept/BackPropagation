@@ -40,18 +40,20 @@ int main()
     
     int inputCount = 2;
     int outputCount = 2;
-    int trainingCount = 3;
+    int trainingCount = 4;
     
-    double xx[3][2] = {
+    double xx[4][2] = {
         {1,1,},
         {1,0,},
         {0,1,},
+        {0,0,},
 
     };
-    double tt[3][2] = {
+    double tt[4][2] = {
         {1,1,},
         {1,0,},
         {0,1,},
+        {0,0,},
 
     };
     
@@ -61,7 +63,7 @@ int main()
     
     network->dataListSet(*xx,*tt);
     
-    network->trainWithMultiDataCount(1400000000, 0.001);
+    network->trainWithMultiDataCount(1400000000, 0.000000001);
     
     network->showResult();
     

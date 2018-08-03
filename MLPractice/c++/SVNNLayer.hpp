@@ -14,9 +14,17 @@
 #include <math.h>
 #include <stdlib.h>
 using namespace std;
+enum SVlearnStyle
+{
+    LearnBysigmoid = 0,
+    LearnByRelu,
+    
+};
+
 class SVNNLayer
 {
 public:
+    
     int countOfIn;
     int countOfOut;
     int index;
@@ -28,7 +36,7 @@ public:
     double *out;//[countOfcase][cH1];
     double *input;
     double *delta;
-    
+    SVlearnStyle style;
     //for training
     
     double *dETotal_dOut;//[layer->countOfOut];
@@ -44,7 +52,7 @@ public:
     {
         countOfIn = _countOfIn;
         countOfOut = _countOfOut;
-       
+        style = LearnBysigmoid;
         try {
             net = new double[countOfOut];
             for (int j = 0; j<countOfOut; j++) {
@@ -182,13 +190,36 @@ public:
             delta[i] = dETotal_dOut[i]*dhout_dnet[i];
         }
     }
-    void doutdnet()
+    void doutdnetRelu()
     {
-
+        
         for (int i = 0; i < countOfOut; i++) {
             
-            dhout_dnet[i] = out[i]*(1- out[i]);
+            if(net[i]>0)
+            {
+                dhout_dnet[i] = 1;
+            }
+            else
+            {
+                dhout_dnet[i] = 0.3;
+            }
+            
         }
+    }
+    void doutdnet()
+    {
+        if(style == LearnByRelu)
+        {
+            doutdnetRelu();
+        }
+        else
+        {
+            for (int i = 0; i < countOfOut; i++) {
+                
+                dhout_dnet[i] = out[i]*(1- out[i]);
+            }
+        }
+        
     }
     
     void dnetdw()
@@ -228,8 +259,19 @@ public:
         }
         
         for(int j = 0; j < countOfOut;j++){
-            out[j] = sigmoid(net[j]);
+            if(style == LearnByRelu)
+            {
+                out[j] = relu(net[j]);
+            }
+            else
+            {
+                out[j] = sigmoid(net[j]);
+            }
         }
+    }
+    double relu(double x){
+       double r =  x>0.0?x:0.3*x;
+        return r;
     }
     double sigmoid(double x) {
         return 1.0 / (1.0 + exp(-x));
