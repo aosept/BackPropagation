@@ -62,7 +62,7 @@ static void didRecieveData_t(const void*callback,const char *key, const char *va
 -(void)autoencoderInit
 {
     int countOfwconfig = 2;
-    int wconfig[2] = {5,2};
+    int wconfig[2] = {7,2};
     
     int inputCount = 2;
     int outputCount = 2;
