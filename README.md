@@ -1,5 +1,5 @@
 # BackPropagation
-Back Propagation Example for iOS in c++
+Back Propagation Example for iOS in c++.
 For more details of BP,plaase read Matt Mazur's artical:
 https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
 
