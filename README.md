@@ -1,6 +1,6 @@
 # BackPropagation
 Back Propagation Example for iOS in c++
-Fot details of BP to see:
+For more details of BP,plaase read Matt Mazur's artical:
 https://mattmazur.com/2015/03/17/a-step-by-step-backpropagation-example/
 
 1334500000 delta:	0.0010000655
